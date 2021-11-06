@@ -9,7 +9,7 @@ public class Game {
     private Boolean isStarted = false;
     private int questionNumber = 0;
 
-    private ArrayList<String> funnyNames = new ArrayList<>(
+    private final ArrayList<String> funnyNames = new ArrayList<>(
             List.of(
                     "Сирота",
                     "Вкусные щечки",
@@ -141,6 +141,17 @@ public class Game {
         }
 
         return -1;
+    }
+
+    public List<Player> getPidors() {
+        ArrayList<Player> pidors = new ArrayList<>();
+        for (Player player : players) {
+            if (getStory(player.getId()).getAnswers().size() == questionNumber) {
+                pidors.add(player);
+            }
+        }
+
+        return pidors;
     }
 
     public String getGameCode() {

@@ -109,4 +109,13 @@ public class GameController {
         if (story == null) return new StoryResponse(1, null);
         else return new StoryResponse(0, story);
     }
+
+    @PostMapping("/pidors")
+    public List<Player> getPidors(@RequestBody PlayerRequest request) {
+        request.gameCode = request.gameCode.toLowerCase(Locale.ROOT);
+        Game game = games.get(request.gameCode);
+        return game != null ?
+                game.getPidors() :
+                null;
+    }
 }
