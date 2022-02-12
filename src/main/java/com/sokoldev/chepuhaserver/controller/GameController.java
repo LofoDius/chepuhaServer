@@ -63,13 +63,30 @@ public class GameController {
     public BaseResponse connectToGame(@RequestBody ConnectToGameRequest request) {
         System.out.println("Connect from: " + request.player.getName());
         request.gameCode = request.gameCode.toLowerCase(Locale.ROOT);
-        if (games.containsKey(request.gameCode) && games.get(request.gameCode).getPlayerIndexById(request.player.getId()) == -1) {
+
+        if (!games.containsKey(request.gameCode))
+            return new BaseResponse(1);
+
+        if (games.get(request.gameCode).getQuestionNumber() != 0) {
+            if (games.get(request.gameCode).getPlayers().stream().anyMatch(player -> player.getId().equals(request.player.getId()))) {
+                return new BaseResponse(0);
+            } else return new BaseResponse(2);
+        }
+
+        if (games.get(request.gameCode).getPlayerIndexById(request.player.getId()) == -1) {
             String name = games.get(request.gameCode).addPlayer(request.player);
             request.player.setName(name);
             messageSendingOperations.convertAndSend("/topic/connectedPlayers/" + request.gameCode, request.player);
             return new BaseResponse(0);
         }
-        return new BaseResponse(1);
+        return new BaseResponse(3);
+    }
+
+    @GetMapping("/currentQuestion/{gameCode}")
+    public QuestionResponse getCurrentQuestion(@PathVariable String gameCode) {
+        if (games.containsKey(gameCode)) {
+            return new QuestionResponse(0, games.get(gameCode).getQuestion(), games.get(gameCode).getQuestionNumber());
+        } else return new QuestionResponse(1, "", -1);
     }
 
     @PostMapping("/connectedPlayers/{gameCode}")
